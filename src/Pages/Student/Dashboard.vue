@@ -1,91 +1,88 @@
 <script setup>
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 import { Head, Link, usePage } from '@/demo/navigation.js';
+import DashboardBarChart from '@/Components/DashboardBarChart.vue';
+import DashboardDonutChart from '@/Components/DashboardDonutChart.vue';
 import { computed } from 'vue';
 
 const props = defineProps({
-    student: Object,
-    todayActivity: Object,
-    recentAchievements: Array,
-    upcomingSessions: Array,
+    student: { type: Object, default: () => ({}) },
+    todayActivity: { type: Object, default: null },
+    recentAchievements: { type: Array, default: () => [] },
+    upcomingSessions: { type: Array, default: () => [] },
+    activities: { type: Object, default: () => ({ data: [], total: 0 }) },
 });
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
-const xpProgress = computed(() => ((props.student?.xp ?? 0) % 500) / 500 * 100);
+const xpToNextLevel = computed(() => 500 - ((props.student?.xp ?? 0) % 500));
+const subjectItems = computed(() => {
+    const counts = new Map();
+    for (const item of props.activities?.data ?? []) {
+        const subject = item.activity?.subject || 'Outros';
+        counts.set(subject, (counts.get(subject) || 0) + 1);
+    }
+    return [...counts].map(([label, value]) => ({ label, value }));
+});
+const completedActivities = computed(() => (props.activities?.data ?? []).filter(item => item.completed_by_student).length);
+const completionItems = computed(() => [
+    { label: 'Concluídas', value: completedActivities.value, color: 'var(--support-attention)' },
+    { label: 'Para fazer', value: Math.max(0, (props.activities?.total ?? 0) - completedActivities.value), color: 'var(--support-followup)' },
+]);
+const xpItems = computed(() => [
+    { label: 'Neste nível', value: (props.student?.xp ?? 0) % 500, color: 'var(--support-routine)' },
+    { label: 'Para avançar', value: xpToNextLevel.value, color: 'var(--bg-secondary)' },
+]);
 </script>
 
 <template>
     <DashboardLayout role="student">
         <Head title="Meu Painel - EducAdapta" />
+        <div class="dashboard-page student-chart-theme">
+            <header class="dashboard-heading">
+                <div><h1>Olá, {{ user.name }}</h1><p>Seu espaço de aprendizagem, atividades e conquistas.</p></div>
+                <span class="dashboard-pill"><i class="fas fa-graduation-cap" aria-hidden="true"></i> {{ student?.grade || 'Aluno' }}</span>
+            </header>
 
-        <!-- Welcome + XP -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
-            <div>
-                <h1 style="font-size: 1.5rem; font-weight: 700;">Olá, {{ user.name }}! </h1>
-                <p style="color: var(--text-secondary); font-size: 0.9rem;">Meu Foco de Hoje</p>
-            </div>
-            <div class="card" style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1.25rem;">
-                <span class="badge badge-purple">Nível {{ student?.level ?? 1 }}</span>
-                <div class="xp-bar" style="min-width: 120px;">
-                    <div class="progress-bar">
-                        <div class="progress-fill" :style="{ width: xpProgress + '%' }"></div>
-                    </div>
-                    <span class="xp-text">{{ student?.xp ?? 0 }} XP</span>
-                </div>
-            </div>
-        </div>
+            <section class="dashboard-stats" aria-label="Meu progresso">
+                <article class="card dashboard-stat"><div class="dashboard-stat-copy"><div class="kpi-value">{{ student?.level ?? 1 }}</div><div class="kpi-label">Nível atual</div></div><span class="dashboard-stat-icon" style="--stat-color:var(--accent-purple)"><i class="fas fa-layer-group" aria-hidden="true"></i></span></article>
+                <article class="card dashboard-stat"><div class="dashboard-stat-copy"><div class="kpi-value">{{ student?.xp ?? 0 }}</div><div class="kpi-label">Pontos de experiência</div></div><span class="dashboard-stat-icon" style="--stat-color:var(--accent-yellow)"><i class="fas fa-star" aria-hidden="true"></i></span></article>
+                <article class="card dashboard-stat"><div class="dashboard-stat-copy"><div class="kpi-value">{{ activities?.total ?? 0 }}</div><div class="kpi-label">Atividades recebidas</div></div><span class="dashboard-stat-icon" style="--stat-color:var(--accent-blue)"><i class="fas fa-book-open" aria-hidden="true"></i></span></article>
+                <article class="card dashboard-stat"><div class="dashboard-stat-copy"><div class="kpi-value">{{ recentAchievements.length }}</div><div class="kpi-label">Conquistas</div></div><span class="dashboard-stat-icon" style="--stat-color:var(--accent-pink)"><i class="fas fa-trophy" aria-hidden="true"></i></span></article>
+            </section>
 
-        <!-- Today's Activity -->
-        <div v-if="todayActivity" class="card fade-in-up" style="margin-bottom: 1.5rem; border-left: 4px solid var(--accent-blue);">
-            <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 1rem;">
-                <div>
-                    <h3 style="font-size: 1.1rem;">{{ todayActivity.activity?.title }}</h3>
-                    <span class="badge badge-blue" style="margin-top: 0.5rem;">{{ todayActivity.activity?.subject ?? 'Atividade' }}</span>
-                </div>
-                <span class="badge badge-green">+{{ todayActivity.xp_earned }} XP</span>
-            </div>
-            <div style="margin-top: 1rem; padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md); font-size: 0.875rem; white-space: pre-wrap;">{{ todayActivity.adapted_content }}</div>
-            <div style="margin-top: 1rem; text-align: right;">
-                <Link :href="route('student.activities.complete', todayActivity.id)" method="post" as="button" class="btn btn-success">
-                    <i class="fas fa-check"></i> Concluir Atividade
-                </Link>
-            </div>
-        </div>
+            <section class="dashboard-panels dashboard-chart-panels balanced-panels">
+                <article v-if="todayActivity" class="dashboard-feature">
+                    <div class="dashboard-panel-heading"><span class="dashboard-pill"><i class="fas fa-bullseye" aria-hidden="true"></i> Para hoje</span><span class="dashboard-pill">+{{ todayActivity.xp_earned }} XP</span></div>
+                    <h2>{{ todayActivity.activity?.title }}</h2>
+                    <p>{{ todayActivity.activity?.subject }} · {{ todayActivity.adapted_content?.slice(0, 240) }}{{ todayActivity.adapted_content?.length > 240 ? '…' : '' }}</p>
+                    <Link :href="route('student.activities.complete', todayActivity.id)" method="post" as="button" class="btn"><i class="fas fa-check" aria-hidden="true"></i> Concluir atividade</Link>
+                </article>
+                <article v-else class="card dashboard-panel"><h2>Tudo em dia</h2><p class="dashboard-empty">Nenhuma atividade pendente agora. Continue explorando seus conteúdos.</p><Link :href="route('student.activities')" class="dashboard-inline-link">Ver atividades <i class="fas fa-arrow-right" aria-hidden="true"></i></Link></article>
 
-        <div v-else class="card" style="text-align: center; padding: 3rem; margin-bottom: 1.5rem;">
-            <i class="fas fa-star" style="font-size: 3rem; color: var(--accent-yellow); margin-bottom: 1rem;"></i>
-            <h3>Nenhuma atividade pendente!</h3>
-            <p style="color: var(--text-secondary);">Continue assim, você está indo muito bem! 🎉</p>
-        </div>
+                <article class="card dashboard-panel">
+                    <div class="dashboard-panel-heading"><div><h2>Próximo nível</h2><p>{{ xpToNextLevel }} XP para avançar</p></div><span class="dashboard-stat-icon" style="--stat-color:var(--accent-yellow)"><i class="fas fa-arrow-up" aria-hidden="true"></i></span></div>
+                    <DashboardDonutChart label="Progresso de XP para o próximo nível" center-label="XP" :center-value="(student?.xp ?? 0) % 500" :items="xpItems" />
+                </article>
+            </section>
 
-        <div class="grid grid-2">
-            <!-- Upcoming Sessions -->
-            <div class="card">
-                <h3 style="font-size: 1rem; margin-bottom: 1rem;"><i class="fas fa-calendar" style="color: var(--accent-blue);"></i> Próximas Sessões</h3>
-                <div v-if="upcomingSessions?.length">
-                    <div v-for="session in upcomingSessions" :key="session.id" style="padding: 0.75rem 0; border-bottom: 1px solid var(--border);">
-                        <p style="font-weight: 600; font-size: 0.875rem;">{{ session.focus }}</p>
-                        <p style="font-size: 0.75rem; color: var(--text-secondary);">{{ session.professional?.name }}</p>
-                    </div>
-                </div>
-                <p v-else style="color: var(--text-secondary); font-size: 0.875rem;">Nenhuma sessão agendada.</p>
-            </div>
+            <section class="dashboard-panels dashboard-chart-panels balanced-panels">
+                <article class="card dashboard-panel"><div class="dashboard-panel-heading"><div><h2>Minhas atividades</h2><p>{{ completedActivities }} de {{ activities?.total ?? 0 }} concluídas</p></div><Link :href="route('student.activities')" class="dashboard-inline-link">Ver todas <i class="fas fa-arrow-right" aria-hidden="true"></i></Link></div><DashboardBarChart label="Minhas atividades por componente curricular" :items="subjectItems" color="var(--support-routine)" /></article>
+                <article class="card dashboard-panel"><div class="dashboard-panel-heading"><div><h2>Meu andamento</h2><p>Atividades concluídas e para fazer</p></div></div><DashboardDonutChart label="Atividades concluídas e para fazer" center-label="atividades" :items="completionItems" /></article>
+            </section>
 
-            <!-- Recent Achievements -->
-            <div class="card">
-                <h3 style="font-size: 1rem; margin-bottom: 1rem;"><i class="fas fa-trophy" style="color: var(--accent-yellow);"></i> Conquistas Recentes</h3>
-                <div v-if="recentAchievements?.length">
-                    <div v-for="a in recentAchievements" :key="a.id" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border);">
-                        <i :class="a.icon || 'fas fa-medal'" style="font-size: 1.25rem; color: var(--accent-yellow);"></i>
-                        <div>
-                            <p style="font-weight: 600; font-size: 0.875rem;">{{ a.title }}</p>
-                            <p style="font-size: 0.7rem; color: var(--text-secondary);">+{{ a.xp_reward }} XP</p>
-                        </div>
-                    </div>
-                </div>
-                <p v-else style="color: var(--text-secondary); font-size: 0.875rem;">Nenhuma conquista ainda. Continue praticando!</p>
-            </div>
+            <section class="dashboard-panels dashboard-chart-panels balanced-panels">
+                <article class="card dashboard-panel">
+                    <div class="dashboard-panel-heading"><div><h2>Próximas sessões</h2><p>Encontros agendados com sua equipe</p></div><Link :href="route('student.schedule')" class="dashboard-inline-link">Ver agenda <i class="fas fa-arrow-right" aria-hidden="true"></i></Link></div>
+                    <div v-if="upcomingSessions.length" class="dashboard-data-list"><div v-for="session in upcomingSessions" :key="session.id" class="dashboard-data-row"><div class="dashboard-data-main"><strong>{{ session.focus }}</strong><span>{{ session.professional?.name }}</span></div><span class="dashboard-data-meta">{{ new Date(session.scheduled_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) }}</span></div></div>
+                    <p v-else class="dashboard-empty">Nenhuma sessão agendada.</p>
+                </article>
+                <article class="card dashboard-panel">
+                    <div class="dashboard-panel-heading"><div><h2>Conquistas recentes</h2><p>Marcos da sua jornada</p></div><Link :href="route('student.achievements')" class="dashboard-inline-link">Ver todas <i class="fas fa-arrow-right" aria-hidden="true"></i></Link></div>
+                    <div v-if="recentAchievements.length" class="dashboard-data-list"><div v-for="achievement in recentAchievements.slice(0, 4)" :key="achievement.id" class="dashboard-data-row"><div class="dashboard-data-main"><strong><i :class="achievement.icon || 'fas fa-medal'" aria-hidden="true"></i> {{ achievement.title }}</strong><span>{{ achievement.description }}</span></div><span class="dashboard-data-meta">+{{ achievement.xp_reward }} XP</span></div></div>
+                    <p v-else class="dashboard-empty">Suas conquistas vão aparecer aqui.</p>
+                </article>
+            </section>
         </div>
     </DashboardLayout>
 </template>

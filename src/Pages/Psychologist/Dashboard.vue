@@ -1,62 +1,78 @@
 <script setup>
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 import { Head, Link, usePage } from '@/demo/navigation.js';
+import DashboardBarChart from '@/Components/DashboardBarChart.vue';
+import DashboardDonutChart from '@/Components/DashboardDonutChart.vue';
+import { summarizePsychologistSessions } from '@/demo/data.js';
 import { computed } from 'vue';
 
 const props = defineProps({
-    totalStudents: { type: Number, default: 0 },
-    upcomingSessions: { type: Array, default: () => [] },
-    totalSessions: { type: Number, default: 0 },
+    psychologistSessions: { type: Array, default: () => [] },
 });
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
+const summary = computed(() => summarizePsychologistSessions(props.psychologistSessions));
+const upcomingSessions = computed(() => summary.value.upcoming);
+const studentCount = computed(() => summary.value.studentCount);
+const colors = ['var(--support-routine)', 'var(--support-attention)', 'var(--support-followup)', 'var(--support-priority)'];
+const colored = items => items.map((item, index) => ({ ...item, color: colors[index % colors.length] }));
+const statusStyles = { agendada: ['Agendada', 'var(--support-routine)'], concluida: ['Concluída', 'var(--support-attention)'], cancelada: ['Cancelada', 'var(--support-priority)'] };
+const statusItems = computed(() => summary.value.statuses.map(item => ({ ...item, label: statusStyles[item.label]?.[0] || item.label, color: statusStyles[item.label]?.[1] || 'var(--support-followup)' })));
+const focusItems = computed(() => colored(summary.value.focuses));
+const sessionsByDay = computed(() => Array.from({ length: 7 }, (_, index) => {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() + index);
+    const key = date.toLocaleDateString('en-CA');
+    return {
+        label: date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+        value: upcomingSessions.value.filter(session => new Date(session.scheduled_at).toLocaleDateString('en-CA') === key).length,
+    };
+}));
 </script>
 
 <template>
     <DashboardLayout role="psychologist">
         <Head title="Painel Psicólogo - EducAdapta" />
+        <div class="dashboard-page">
+            <header class="dashboard-heading"><div><h1>Olá, {{ user.name }}</h1><p>Visão rápida dos alunos e dos atendimentos agendados.</p></div><div class="dashboard-heading-actions"><Link :href="route('psychologist.sessions')" class="btn btn-primary"><i class="fas fa-calendar-plus" aria-hidden="true"></i> Agendar sessão</Link></div></header>
 
-        <h1 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 2rem;">Olá, {{ user.name }}! </h1>
+            <section class="dashboard-stats dashboard-stats-three" aria-label="Resumo dos atendimentos">
+                <article class="card dashboard-stat"><div class="dashboard-stat-copy"><div class="kpi-value">{{ studentCount }}</div><div class="kpi-label">Alunos com sessões registradas</div></div><span class="dashboard-stat-icon" style="--stat-color:var(--accent-blue)"><i class="fas fa-user-group" aria-hidden="true"></i></span></article>
+                <article class="card dashboard-stat"><div class="dashboard-stat-copy"><div class="kpi-value">{{ psychologistSessions.length }}</div><div class="kpi-label">Sessões registradas</div></div><span class="dashboard-stat-icon" style="--stat-color:var(--accent-purple)"><i class="fas fa-calendar-check" aria-hidden="true"></i></span></article>
+                <article class="card dashboard-stat"><div class="dashboard-stat-copy"><div class="kpi-value">{{ upcomingSessions.length }}</div><div class="kpi-label">Próximas sessões</div></div><span class="dashboard-stat-icon" style="--stat-color:var(--accent-pink)"><i class="fas fa-clock" aria-hidden="true"></i></span></article>
+            </section>
 
-        <div class="grid grid-3" style="margin-bottom: 2rem;">
-            <div class="card kpi-card">
-                <div class="kpi-value">{{ totalStudents }}</div>
-                <div class="kpi-label">Alunos Vinculados</div>
-            </div>
-            <div class="card kpi-card">
-                <div class="kpi-value">{{ totalSessions }}</div>
-                <div class="kpi-label">Total Sessões</div>
-            </div>
-            <div class="card kpi-card">
-                <div class="kpi-value" style="color: var(--accent-green);">{{ upcomingSessions?.length ?? 0 }}</div>
-                <div class="kpi-label">Próximas</div>
-            </div>
-        </div>
+            <section class="dashboard-panels dashboard-chart-panels psychologist-panels">
+                <article class="card dashboard-panel">
+                    <div class="dashboard-panel-heading"><div><h2>Agenda de atendimentos</h2><p>Próximos encontros e foco planejado</p></div><Link :href="route('psychologist.sessions')" class="dashboard-inline-link">Abrir agenda <i class="fas fa-arrow-right" aria-hidden="true"></i></Link></div>
+                    <div v-if="upcomingSessions.length" class="dashboard-data-list"><div v-for="session in upcomingSessions.slice(0, 5)" :key="session.id" class="dashboard-data-row"><div class="dashboard-data-main"><strong>{{ session.student?.user?.name }}</strong><span>{{ session.focus }}</span></div><span class="dashboard-data-meta">{{ new Date(session.scheduled_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) }}</span></div></div>
+                    <p v-else class="dashboard-empty">Nenhum atendimento agendado.</p>
+                </article>
+                <article class="card dashboard-panel psychologist-chart-panel">
+                    <div class="dashboard-panel-heading"><div><h2>Sessões nos próximos dias</h2><p>Quantidade de horários agendados por data</p></div></div>
+                    <DashboardBarChart label="Sessões agendadas nos próximos sete dias" :items="sessionsByDay" color="var(--support-routine)" />
+                    <Link :href="route('psychologist.students')" class="dashboard-inline-link">Ver alunos acompanhados <i class="fas fa-arrow-right" aria-hidden="true"></i></Link>
+                </article>
+            </section>
 
-        <div class="grid grid-2">
-            <div class="card">
-                <h3 style="font-size: 1rem; margin-bottom: 1rem;"><i class="fas fa-calendar-check" style="color: var(--accent-blue);"></i> Próximas Sessões</h3>
-                <div v-if="upcomingSessions?.length">
-                    <div v-for="session in upcomingSessions" :key="session.id" style="padding: 0.5rem 0; border-bottom: 1px solid var(--border);">
-                        <p style="font-weight: 600; font-size: 0.875rem;">{{ session.focus }}</p>
-                        <p style="font-size: 0.75rem; color: var(--text-secondary);">{{ session.student?.user?.name }}</p>
+            <section class="dashboard-panels dashboard-chart-panels psychologist-panels">
+                <article class="card dashboard-panel psychologist-chart-panel">
+                    <div class="dashboard-panel-heading"><div><h2>Situação das sessões</h2><p>Todos os seus registros, por status informado</p></div></div>
+                    <DashboardDonutChart label="Minhas sessões por status" center-label="sessões" :items="statusItems" />
+                </article>
+                <article class="card dashboard-panel psychologist-chart-panel">
+                    <div class="dashboard-panel-heading"><div><h2>Focos registrados</h2><p>Quantidade de sessões por foco informado</p></div></div>
+                    <div v-if="focusItems.length" class="psychologist-focus-list">
+                        <div v-for="item in focusItems" :key="item.label" class="psychologist-focus-row">
+                            <div class="psychologist-focus-label"><span>{{ item.label }}</span><strong>{{ item.value }}</strong></div>
+                            <div class="dashboard-chart-track" aria-hidden="true"><div class="dashboard-chart-bar" :style="{ width: `${item.value / focusItems[0].value * 100}%`, '--chart-color': item.color }"></div></div>
+                        </div>
                     </div>
-                </div>
-                <p v-else style="color: var(--text-secondary); font-size: 0.875rem;">Nenhuma sessão agendada.</p>
-            </div>
-
-            <div class="card">
-                <h3 style="font-size: 1rem; margin-bottom: 1rem;"><i class="fas fa-plus-circle" style="color: var(--accent-green);"></i> Ações Rápidas</h3>
-                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                    <Link :href="route('psychologist.sessions')" class="btn btn-primary">
-                        <i class="fas fa-calendar-plus"></i> Ver Sessões
-                    </Link>
-                    <Link :href="route('psychologist.students')" class="btn btn-outline">
-                        <i class="fas fa-user-graduate"></i> Ver Alunos
-                    </Link>
-                </div>
-            </div>
+                    <p v-else class="dashboard-empty">Nenhuma sessão registrada.</p>
+                </article>
+            </section>
         </div>
     </DashboardLayout>
 </template>

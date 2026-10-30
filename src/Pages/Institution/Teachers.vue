@@ -16,8 +16,8 @@ const props = defineProps({
         </h1>
         <p style="color: var(--text-secondary); margin-bottom: 2rem;">Todos os professores cadastrados na plataforma.</p>
 
-        <div v-if="teachers?.length" class="card" style="overflow: hidden; padding: 0;">
-            <table style="width: 100%; border-collapse: collapse;">
+        <div v-if="teachers?.length" class="card" style="overflow-x: auto; padding: 0;">
+            <table style="width: 100%; min-width: 560px; border-collapse: collapse;">
                 <thead>
                     <tr style="background: var(--bg-light);">
                         <th style="text-align: left; padding: 0.75rem 1rem; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary);">Professor</th>
@@ -30,7 +30,7 @@ const props = defineProps({
                     <tr v-for="t in teachers" :key="t.id" style="border-top: 1px solid var(--border);">
                         <td style="padding: 0.75rem 1rem;">
                             <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--accent-blue); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem;">
+                                <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem;">
                                     {{ t.name?.charAt(0)?.toUpperCase() }}
                                 </div>
                                 <span style="font-weight: 600; font-size: 0.875rem;">{{ t.name }}</span>

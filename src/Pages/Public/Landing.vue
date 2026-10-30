@@ -1,6 +1,7 @@
 <script setup>
 import { Head, Link } from '@/demo/navigation.js';
 import { ref, onMounted, onUnmounted } from 'vue';
+import ThemeToggle from '@/Components/ThemeToggle.vue';
 
 const currentSlide = ref(0);
 const slides = [
@@ -10,7 +11,7 @@ const slides = [
 ];
 
 let interval;
-onMounted(() => { interval = setInterval(() => { currentSlide.value = (currentSlide.value + 1) % slides.length; }, 5000); });
+onMounted(() => { if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) interval = setInterval(() => { currentSlide.value = (currentSlide.value + 1) % slides.length; }, 5000); });
 onUnmounted(() => clearInterval(interval));
 
 const mobileMenuOpen = ref(false);
@@ -32,7 +33,8 @@ const mobileMenuOpen = ref(false);
                 <li><a href="#how-it-works">Como Funciona</a></li>
                 <li><Link :href="route('login')" class="btn btn-primary btn-sm">Explorar demo</Link></li>
             </ul>
-            <button aria-label="Abrir menu" :aria-expanded="mobileMenuOpen" class="hamburger" style="display: none;" @click="mobileMenuOpen = !mobileMenuOpen">
+            <ThemeToggle />
+            <button :aria-label="mobileMenuOpen ? 'Fechar menu' : 'Abrir menu'" :aria-expanded="mobileMenuOpen" class="hamburger" style="display: none;" @click="mobileMenuOpen = !mobileMenuOpen">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
@@ -52,14 +54,15 @@ const mobileMenuOpen = ref(false);
                 </div>
                 <!-- Dots -->
                 <div style="display: flex; gap: 0.5rem; margin-top: 2rem;">
-                    <span v-for="(s, i) in slides" :key="i"
+                    <button v-for="(s, i) in slides" :key="i" type="button" :aria-label="`Mostrar ${s.title}`" :aria-pressed="currentSlide === i"
                         @click="currentSlide = i"
                         :style="{
                             width: currentSlide === i ? '2rem' : '0.5rem',
                             height: '0.5rem',
-                            background: currentSlide === i ? 'var(--accent-yellow)' : 'rgba(255,255,255,0.4)',
+                            background: currentSlide === i ? 'var(--lime)' : 'rgba(255,255,255,0.4)',
                             borderRadius: '9999px',
                             cursor: 'pointer',
+                            border: '0',
                             transition: 'all 0.3s ease',
                         }"
                     />
@@ -116,7 +119,7 @@ const mobileMenuOpen = ref(false);
                     <p>Professores enviam atividades e a IA adapta automaticamente.</p>
                 </div>
                 <div class="card feature-card">
-                    <i class="fas fa-comments" style="color: var(--accent-yellow);"></i>
+                    <i class="fas fa-comments" style="color: var(--accent-pink);"></i>
                     <h3>Comunicação em Tempo Real</h3>
                     <p>Chat entre profissionais, professores e famílias.</p>
                 </div>
@@ -136,22 +139,22 @@ const mobileMenuOpen = ref(false);
             <p class="section-subtitle" style="color: rgba(255,255,255,0.7);">Pipeline de IA em 4 etapas</p>
             <div class="grid grid-4">
                 <div style="text-align: center; padding: 1.5rem;">
-                    <div style="width: 60px; height: 60px; background: var(--accent-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem; font-weight: 700;">1</div>
+                    <div style="width: 60px; height: 60px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem; font-weight: 700;">1</div>
                     <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">Psicopedagoga Cria Perfil</h3>
                     <p style="font-size: 0.8rem; opacity: 0.8;">Define transtornos, regras e preferências do aluno.</p>
                 </div>
                 <div style="text-align: center; padding: 1.5rem;">
-                    <div style="width: 60px; height: 60px; background: var(--accent-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem; font-weight: 700;">2</div>
+                    <div style="width: 60px; height: 60px; background: var(--accent-green-solid); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem; font-weight: 700;">2</div>
                     <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">Professor Envia Atividade</h3>
                     <p style="font-size: 0.8rem; opacity: 0.8;">Anexa PDF ou texto e seleciona os alunos.</p>
                 </div>
                 <div style="text-align: center; padding: 1.5rem;">
-                    <div style="width: 60px; height: 60px; background: var(--accent-purple); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem; font-weight: 700;">3</div>
+                    <div style="width: 60px; height: 60px; background: var(--accent-purple-solid); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem; font-weight: 700;">3</div>
                     <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">IA Adapta</h3>
                     <p style="font-size: 0.8rem; opacity: 0.8;">A IA combina perfil + atividade e gera versão personalizada.</p>
                 </div>
                 <div style="text-align: center; padding: 1.5rem;">
-                    <div style="width: 60px; height: 60px; background: var(--accent-yellow); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem; font-weight: 700; color: var(--primary-dark);">4</div>
+                    <div style="width: 60px; height: 60px; background: var(--lime); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem; font-weight: 700; color: #111b08;">4</div>
                     <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">Aluno Recebe</h3>
                     <p style="font-size: 0.8rem; opacity: 0.8;">Recebe a atividade adaptada e ganha XP ao completar!</p>
                 </div>

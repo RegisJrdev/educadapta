@@ -54,7 +54,7 @@ const pastSessions = props.sessions?.filter(s => s.status !== 'agendada' || new 
                         <i class="fas fa-user-md"></i> {{ s.professional?.name || 'Profissional' }} • {{ formatTime(s.scheduled_at) }}
                     </p>
                 </div>
-                <span class="badge" :style="{ background: statusColor(s.status) + '20', color: statusColor(s.status) }">
+                <span class="badge" :style="{ background: `color-mix(in srgb, ${statusColor(s.status)} 12%, transparent)`, color: statusColor(s.status) }">
                     {{ statusLabel(s.status) }}
                 </span>
             </div>
@@ -67,7 +67,7 @@ const pastSessions = props.sessions?.filter(s => s.status !== 'agendada' || new 
         <!-- Past -->
         <h2 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;"><i class="fas fa-history" style="color: var(--text-light);"></i> Histórico</h2>
         <div v-if="pastSessions.length" style="display: flex; flex-direction: column; gap: 0.5rem;">
-            <div v-for="s in pastSessions" :key="s.id" class="card" style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem; opacity: 0.7;">
+            <div v-for="s in pastSessions" :key="s.id" class="card" style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem;">
                 <div style="width: 40px; height: 40px; border-radius: var(--radius-md); background: var(--bg-light); display: flex; align-items: center; justify-content: center; flex-direction: column; flex-shrink: 0;">
                     <span style="font-weight: 700; font-size: 0.85rem; line-height: 1;">{{ new Date(s.scheduled_at).getDate() }}</span>
                     <span style="font-size: 0.55rem; text-transform: uppercase; color: var(--text-light);">{{ new Date(s.scheduled_at).toLocaleDateString('pt-BR', { month: 'short' }) }}</span>
@@ -76,7 +76,7 @@ const pastSessions = props.sessions?.filter(s => s.status !== 'agendada' || new 
                     <p style="font-weight: 600; font-size: 0.85rem;">{{ s.focus }}</p>
                     <p style="font-size: 0.7rem; color: var(--text-secondary);">{{ s.professional?.name }}</p>
                 </div>
-                <span class="badge" :style="{ background: statusColor(s.status) + '20', color: statusColor(s.status), fontSize: '0.65rem' }">
+                <span class="badge" :style="{ background: `color-mix(in srgb, ${statusColor(s.status)} 12%, transparent)`, color: statusColor(s.status), fontSize: '0.65rem' }">
                     {{ statusLabel(s.status) }}
                 </span>
             </div>

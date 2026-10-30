@@ -1,20 +1,39 @@
 // Compatibilidade local com os componentes Vue extraídos do Inertia.
-// Não envia requisições ao Laravel e não simula autenticação real.
 import { reactive, defineComponent, h, watchEffect } from 'vue';
 import { createInitialData, buildPageProps } from './data.js';
 import { applyAction, previewAdaptation } from './actions.js';
 import { resolvePage, routePath } from './routes.js';
 
 const storageKey = 'educadapta-demo-v1';
+const stateKeys = ['users', 'students', 'activities', 'adapted', 'sessions', 'screenings', 'classRooms', 'plans', 'achievements', 'messages'];
 function restore() {
     try {
         const saved = JSON.parse(localStorage.getItem(storageKey));
-        if (saved && ['users', 'students', 'activities', 'adapted', 'sessions', 'screenings', 'classRooms', 'plans', 'achievements', 'messages'].every(key => Array.isArray(saved[key]))) return saved;
+        if (isDemoState(saved)) return saved;
     } catch { /* Navegadores que bloqueiam storage continuam em memória. */ }
     return createInitialData();
 }
+function isDemoState(state) {
+    if (!state || typeof state !== 'object' || !stateKeys.every(key => Array.isArray(state[key]) && state[key].every(record => record && typeof record === 'object' && !Array.isArray(record) && Number.isSafeInteger(record.id) && record.id > 0))) return false;
+    const roles = ['teacher', 'student', 'psychologist', 'psychopedagogue', 'institution'];
+    const users = new Map(state.users.map(user => [user.id, user]));
+    const students = new Map(state.students.map(student => [student.id, student]));
+    const activities = new Map(state.activities.map(activity => [activity.id, activity]));
+    if (roles.some(role => state.users.filter(user => user.role === role).length < 1) || roles.filter(role => role !== 'student' && role !== 'teacher').some(role => state.users.filter(user => user.role === role).length !== 1) || !state.users.every(user => typeof user.name === 'string') || !state.students.length) return false;
+    if (!state.students.every(student => typeof student.user?.name === 'string')) return false;
+    if (!state.activities.every(activity => typeof activity.title === 'string' && typeof activity.subject === 'string')) return false;
+    if (!state.adapted.every(item => students.has(item.student_id) && activities.has(item.activity_id) && typeof item.adapted_content === 'string')) return false;
+    if (!state.sessions.every(item => students.has(item.student_id) && users.get(item.professional_id)?.role === 'psychologist' && typeof item.scheduled_at === 'string' && typeof item.focus === 'string')) return false;
+    if (!state.screenings.every(item => students.has(item.student_id) && users.get(item.teacher_id)?.role === 'teacher' && Number.isFinite(item.score_geral) && item.score_geral >= 0 && item.score_geral <= 100 && typeof item.risk_level === 'string' && typeof item.created_at === 'string')) return false;
+    if (!state.plans.every(item => students.has(item.student_id) && typeof item.title === 'string' && typeof item.goals === 'string')) return false;
+    if (!state.classRooms.every(item => typeof item.name === 'string') || !state.achievements.every(item => typeof item.title === 'string')) return false;
+    return state.messages.every(message => users.has(message.sender_id) && users.has(message.receiver_id) && typeof message.content === 'string');
+}
+const snapshotState = () => JSON.parse(JSON.stringify(db));
 export const db = reactive(restore());
-export const view = reactive({ url: location.pathname + location.search, revision: 0, notice: '', persistence: true });
+export const view = reactive({ url: location.pathname + location.search, revision: 0, notice: '', persistence: true, backend: false, ready: false });
+let serverRevision = 0;
+let mutationQueue = Promise.resolve();
 const page = reactive({ props: {}, component: '' });
 function refresh() {
     const url = new URL(view.url, location.origin);
@@ -25,15 +44,82 @@ function refresh() {
 refresh();
 watchEffect(() => { view.url; view.revision; refresh(); });
 export const usePage = () => page;
-export function persist() {
+function replaceState(state) {
+    for (const key of stateKeys) db[key] = structuredClone(state[key]);
+    view.revision++;
+    refresh();
+}
+function persistLocal() {
     try { localStorage.setItem(storageKey, JSON.stringify(db)); }
     catch { view.persistence = false; }
-    view.revision++;
+}
+async function readRemoteState() {
+    const response = await fetch('/api/state', { headers: { Accept: 'application/json' } });
+    if (!response.ok) throw new Error('Não foi possível carregar os dados compartilhados.');
+    const result = await response.json();
+    if (!Number.isSafeInteger(result.revision) || result.revision < 0 || (result.state !== null && !isDemoState(result.state))) throw new Error('O backend retornou dados inválidos.');
+    serverRevision = result.revision;
+    return result.state;
+}
+async function writeRemoteState(state, revision) {
+    const response = await fetch('/api/state', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ state, revision }),
+    });
+    const result = await response.json();
+    if (response.status === 409 && Number.isSafeInteger(result.revision) && (result.state === null || isDemoState(result.state))) {
+        serverRevision = result.revision;
+        return { conflict: true, state: result.state };
+    }
+    if (!response.ok || !Number.isSafeInteger(result.revision)) throw new Error(result.message || 'Não foi possível salvar no SQLite.');
+    serverRevision = result.revision;
+    return { conflict: false };
+}
+export async function initializeDemo() {
+    try {
+        const state = await readRemoteState();
+        view.backend = true;
+        if (state) replaceState(state);
+        else {
+            const result = await writeRemoteState(snapshotState(), serverRevision);
+            if (result.conflict) replaceState(result.state || await readRemoteState());
+        }
+    } catch (error) {
+        view.backend = false;
+        view.notice = `Backend PHP/SQLite indisponível; esta sessão está em modo local. ${error.message}`;
+    } finally {
+        view.ready = true;
+    }
 }
 export function resetDemo() {
-    Object.assign(db, createInitialData());
-    persist();
-    view.notice = 'Demonstração reiniciada com os dados de exemplo.';
+    if (!window.confirm(view.backend
+        ? 'Isso restaura os dados compartilhados e apaga as alterações feitas por todas as pessoas nesta demonstração. Continuar?'
+        : 'Restaurar os dados de exemplo neste navegador?')) return;
+    const operation = async () => {
+        const initial = createInitialData();
+        if (!view.backend) {
+            replaceState(initial);
+            persistLocal();
+            view.notice = view.persistence ? 'Demonstração reiniciada com os dados de exemplo.' : 'Dados reiniciados nesta sessão; o navegador não permite armazenamento local.';
+            return;
+        }
+        try {
+            const result = await writeRemoteState(initial, serverRevision);
+            if (result.conflict) {
+                replaceState(result.state || await readRemoteState());
+                view.notice = 'Não reiniciei: outra pessoa atualizou a demonstração. Tente novamente.';
+                return;
+            }
+            replaceState(initial);
+            view.notice = 'Demonstração compartilhada reiniciada com os dados de exemplo.';
+        } catch {
+            view.notice = 'Não foi possível reiniciar os dados compartilhados. Tente novamente.';
+        }
+    };
+    const pending = mutationQueue.then(operation);
+    mutationQueue = pending.catch(() => {});
+    return pending;
 }
 export function navigate(href, options = {}) {
     const url = new URL(href, location.origin);
@@ -62,21 +148,54 @@ export const router = {
     visit: navigate,
 };
 function submit(href, data, options = {}) {
-    try {
-        const path = new URL(href, location.origin).pathname;
-        if (path === '/demo') { navigate('/demo'); options.onSuccess?.(); return; }
-        const result = applyAction(db, path, data, page.props.auth.user);
-        persist(); refresh();
-        if (result.redirect) navigate(result.redirect);
-        page.props.flash = { success: result.message };
-        view.notice = result.message;
-        options.onSuccess?.();
-        return true;
-    } catch (error) {
-        view.notice = error.message;
-        options.onError?.(error.errors || { form: error.message });
-        return false;
-    } finally { options.onFinish?.(); }
+    const actor = page.props.auth.user;
+    const operation = async () => {
+        const before = snapshotState();
+        try {
+            const path = new URL(href, location.origin).pathname;
+            if (path === '/demo') { navigate('/demo'); options.onSuccess?.(); return; }
+            let result;
+            if (!view.backend) {
+                result = applyAction(db, path, data, actor);
+                persistLocal();
+            } else {
+                result = applyAction(db, path, data, actor);
+                const saved = await writeRemoteState(snapshotState(), serverRevision);
+                if (saved.conflict) {
+                    replaceState(saved.state || await readRemoteState());
+                    result = applyAction(db, path, data, actor);
+                    const retry = await writeRemoteState(snapshotState(), serverRevision);
+                    if (retry.conflict) {
+                        replaceState(retry.state || await readRemoteState());
+                        throw new Error('Outra pessoa atualizou os dados. Sua ação não foi salva; tente novamente.');
+                    }
+                }
+            }
+            refresh();
+            if (result.redirect) navigate(result.redirect);
+            page.props.flash = { success: result.message };
+            view.notice = result.message;
+            options.onSuccess?.();
+            return true;
+        } catch (error) {
+            if (view.backend) {
+                try {
+                    const state = await readRemoteState();
+                    replaceState(state || before);
+                } catch {
+                    replaceState(before);
+                    view.backend = false;
+                    persistLocal();
+                }
+            }
+            view.notice = error.message;
+            options.onError?.(error.errors || { form: error.message });
+            return false;
+        } finally { options.onFinish?.(); }
+    };
+    const pending = mutationQueue.then(operation);
+    mutationQueue = pending.catch(() => {});
+    return pending;
 }
 export function useForm(initial) {
     const defaults = structuredClone(initial);
@@ -84,11 +203,13 @@ export function useForm(initial) {
         ...structuredClone(defaults), errors: {}, processing: false, recentlySuccessful: false,
         reset(...keys) { for (const key of keys.length ? keys : Object.keys(defaults)) form[key] = structuredClone(defaults[key]); },
         clearErrors() { form.errors = {}; },
-        post(href, options = {}) {
+        async post(href, options = {}) {
             form.processing = true; form.errors = {}; form.recentlySuccessful = false;
             const data = Object.fromEntries(Object.keys(defaults).map(key => [key, form[key]]));
-            const ok = submit(href, data, { ...options, onError(errors) { form.errors = errors; options.onError?.(errors); } });
-            form.processing = false; form.recentlySuccessful = ok;
+            try {
+                const ok = await submit(href, data, { ...options, onError(errors) { form.errors = errors; options.onError?.(errors); } });
+                form.recentlySuccessful = ok;
+            } finally { form.processing = false; }
         },
     });
     return form;

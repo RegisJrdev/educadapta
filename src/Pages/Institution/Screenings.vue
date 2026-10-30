@@ -13,27 +13,27 @@ const filterRisk = ref("all");
 
 const riskConfig = {
     baixo: {
-        label: "Baixo Risco",
-        color: "#10b981",
-        bg: "rgba(16,185,129,0.15)",
+        label: "Rotina",
+        color: "var(--accent-green)",
+        bg: "color-mix(in srgb, var(--accent-green) 10%, var(--bg-card))",
         icon: "🟢",
     },
     atencao: {
-        label: "Atenção",
-        color: "#f59e0b",
-        bg: "rgba(245,158,11,0.15)",
+        label: "Atenção pontual",
+        color: "var(--accent-yellow)",
+        bg: "color-mix(in srgb, var(--accent-yellow) 10%, var(--bg-card))",
         icon: "🟡",
     },
     moderado: {
-        label: "Moderado",
-        color: "#f97316",
-        bg: "rgba(249,115,22,0.15)",
+        label: "Acompanhamento próximo",
+        color: "var(--accent-orange)",
+        bg: "color-mix(in srgb, var(--accent-orange) 10%, var(--bg-card))",
         icon: "🟠",
     },
     alto: {
-        label: "Alto Risco",
-        color: "#ef4444",
-        bg: "rgba(239,68,68,0.15)",
+        label: "Apoio prioritário",
+        color: "var(--accent-red)",
+        bg: "color-mix(in srgb, var(--accent-red) 10%, var(--bg-card))",
         icon: "🔴",
     },
 };
@@ -179,7 +179,7 @@ const areaLabels = {
                     <tr
                         style="
                             text-align: left;
-                            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                            border-bottom: 1px solid var(--border);
                         "
                     >
                         <th style="padding: 0.75rem 0.5rem; font-weight: 600">
@@ -195,7 +195,7 @@ const areaLabels = {
                             Score
                         </th>
                         <th style="padding: 0.75rem 0.5rem; font-weight: 600">
-                            Risco
+                            Acompanhamento
                         </th>
                         <th style="padding: 0.75rem 0.5rem; font-weight: 600">
                             Áreas
@@ -207,7 +207,7 @@ const areaLabels = {
                         v-for="sc in filtered"
                         :key="sc.id"
                         style="
-                            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                            border-bottom: 1px solid var(--border);
                             transition: background 0.2s;
                         "
                         class="table-row-hover"
@@ -225,7 +225,7 @@ const areaLabels = {
                                         width: 32px;
                                         height: 32px;
                                         border-radius: 50%;
-                                        background: var(--accent-purple);
+                                        background: var(--accent-purple-solid);
                                         color: white;
                                         display: flex;
                                         align-items: center;
@@ -345,7 +345,7 @@ const areaLabels = {
                 <p>
                     {{
                         filterRisk !== "all"
-                            ? "Nenhuma triagem com esse nível de risco."
+                            ? "Nenhuma triagem nessa faixa de acompanhamento."
                             : "Nenhuma triagem realizada ainda."
                     }}
                 </p>
@@ -356,6 +356,6 @@ const areaLabels = {
 
 <style scoped>
 .table-row-hover:hover {
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--bg-secondary);
 }
 </style>

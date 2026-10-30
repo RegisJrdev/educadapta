@@ -29,8 +29,8 @@ const reports = [
         color: 'var(--accent-red)',
         bg: 'rgba(239,68,68,0.1)',
         title: 'Triagens Realizadas',
-        description: 'Resultado de todas as triagens com distribuição por nível de risco e período.',
-        tags: ['Risco', 'Período', 'Alunos'],
+        description: 'Registros de acompanhamento pedagógico por faixa e período.',
+        tags: ['Acompanhamento', 'Período', 'Alunos'],
     },
     {
         icon: 'fas fa-user-graduate',
@@ -42,7 +42,7 @@ const reports = [
     },
     {
         icon: 'fas fa-chalkboard-teacher',
-        color: '#f97316',
+        color: 'var(--accent-orange)',
         bg: 'rgba(249,115,22,0.1)',
         title: 'Desempenho dos Professores',
         description: 'Atividades criadas por professor, turmas atendidas e uso da ferramenta de adaptação.',
@@ -50,7 +50,7 @@ const reports = [
     },
     {
         icon: 'fas fa-brain',
-        color: '#ec4899',
+        color: 'var(--accent-pink)',
         bg: 'rgba(236,72,153,0.1)',
         title: 'Perfis de IA e NEE',
         description: 'Distribuição de transtornos cadastrados, cobertura de perfis e regras de adaptação.',
@@ -66,7 +66,7 @@ const reports = [
     },
     {
         icon: 'fas fa-calendar-alt',
-        color: '#06b6d4',
+        color: 'var(--accent-cyan)',
         bg: 'rgba(6,182,212,0.1)',
         title: 'Evolução Mensal',
         description: 'Crescimento mês a mês de atividades, adaptações e alunos ativos na plataforma.',
@@ -105,7 +105,7 @@ const reports = [
             <p style="font-size: .8rem; margin-top: 1rem;">Este resumo ilustra a apresentação de relatórios. Não contém informações reais ou análises clínicas.</p>
             <button type="button" class="btn btn-primary report-print" style="margin-top: 1rem;" @click="printReport">Imprimir / Salvar PDF</button>
         </section>
-        <div class="report-catalog" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1.25rem;">
+        <div class="report-catalog" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap:1.25rem;">
             <div v-for="report in reports" :key="report.title"
                  class="card"
                  style="cursor:pointer; display:flex; flex-direction:column; gap:1rem; transition:var(--transition);"
@@ -140,9 +140,7 @@ const reports = [
 
                 <!-- Botão -->
                 <button @click="selectedReport = report" class="btn btn-outline btn-sm"
-                        :style="{ color: report.color, borderColor: report.color, width:'100%' }"
-                        onmouseover="this.style.opacity='0.8'"
-                        onmouseout="this.style.opacity='1'">
+                        style="width:100%;">
                     <i class="fas fa-file-pdf"></i> Ver exemplo
                 </button>
             </div>

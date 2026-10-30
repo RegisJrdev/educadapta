@@ -13,9 +13,9 @@ const areas = [
     {
         key: "atencao",
         title: "Atenção e Concentração",
-        subtitle: "Indicadores de TDAH",
+        subtitle: "Organização e foco nas atividades",
         icon: "fas fa-eye",
-        color: "#3b82f6",
+        color: "var(--accent-blue)",
         questions: [
             "O aluno tem dificuldade em manter o foco durante atividades em sala?",
             "Distrai-se facilmente com estímulos irrelevantes?",
@@ -27,9 +27,9 @@ const areas = [
     {
         key: "leitura",
         title: "Leitura e Escrita",
-        subtitle: "Indicadores de Dislexia",
+        subtitle: "Fluência e compreensão",
         icon: "fas fa-book-open",
-        color: "#8b5cf6",
+        color: "var(--accent-purple)",
         questions: [
             "Apresenta leitura lenta e/ou fragmentada?",
             "Troca letras semelhantes ao ler ou escrever (b/d, p/q)?",
@@ -41,9 +41,9 @@ const areas = [
     {
         key: "raciocinio",
         title: "Raciocínio Lógico-Matemático",
-        subtitle: "Indicadores de Discalculia",
+        subtitle: "Estratégias matemáticas",
         icon: "fas fa-calculator",
-        color: "#06b6d4",
+        color: "var(--accent-cyan)",
         questions: [
             "Tem dificuldade em reconhecer números e quantidades?",
             "Apresenta dificuldade com operações matemáticas básicas?",
@@ -54,10 +54,10 @@ const areas = [
     },
     {
         key: "comportamento",
-        title: "Comportamento Social",
-        subtitle: "Indicadores de TEA / Ansiedade",
+        title: "Convivência e participação",
+        subtitle: "Interação e autorregulação",
         icon: "fas fa-users",
-        color: "#f59e0b",
+        color: "var(--accent-yellow)",
         questions: [
             "Tem dificuldade em interagir com colegas de classe?",
             "Mostra rigidez em rotinas e resistência a mudanças?",
@@ -69,9 +69,9 @@ const areas = [
     {
         key: "coordenacao",
         title: "Coordenação Motora",
-        subtitle: "Indicadores de Dispraxia",
+        subtitle: "Coordenação nas atividades escolares",
         icon: "fas fa-hand-paper",
-        color: "#10b981",
+        color: "var(--accent-green)",
         questions: [
             "Tem dificuldade com motricidade fina (segurar lápis, abotoar)?",
             "Apresenta dificuldade em recortar com tesoura ou usar régua?",
@@ -83,9 +83,9 @@ const areas = [
     {
         key: "comunicacao",
         title: "Comunicação",
-        subtitle: "Indicadores de Distúrbios de Linguagem",
+        subtitle: "Expressão e compreensão",
         icon: "fas fa-comment-dots",
-        color: "#ec4899",
+        color: "var(--accent-pink)",
         questions: [
             "Tem dificuldade em se expressar verbalmente de forma clara?",
             "Apresenta dificuldade em compreender instruções orais?",
@@ -97,10 +97,10 @@ const areas = [
 ];
 
 const scaleLabels = [
-    { value: 0, label: "Nunca", short: "0", color: "#10b981" },
-    { value: 1, label: "Às vezes", short: "1", color: "#f59e0b" },
-    { value: 2, label: "Frequentemente", short: "2", color: "#f97316" },
-    { value: 3, label: "Sempre", short: "3", color: "#ef4444" },
+    { value: 0, label: "Nunca", short: "0", color: "var(--accent-green)" },
+    { value: 1, label: "Às vezes", short: "1", color: "var(--accent-yellow)" },
+    { value: 2, label: "Frequentemente", short: "2", color: "var(--accent-orange)" },
+    { value: 3, label: "Sempre", short: "3", color: "var(--accent-red)" },
 ];
 
 // Initialize form with empty answers
@@ -174,16 +174,20 @@ const getAreaScore = (areaKey) => {
 
 const getRiskLevel = (score) => {
     if (score === null) return null;
-    if (score <= 25) return { label: "Baixo", color: "#10b981", icon: "🟢" };
-    if (score <= 50) return { label: "Atenção", color: "#f59e0b", icon: "🟡" };
-    if (score <= 75) return { label: "Moderado", color: "#f97316", icon: "🟠" };
-    return { label: "Alto", color: "#ef4444", icon: "🔴" };
+    if (score <= 25) return { label: "Rotina", color: "var(--accent-green)", icon: "🟢" };
+    if (score <= 50) return { label: "Atenção pontual", color: "var(--accent-yellow)", icon: "🟡" };
+    if (score <= 75) return { label: "Acompanhamento próximo", color: "var(--accent-orange)", icon: "🟠" };
+    return { label: "Apoio prioritário", color: "var(--accent-red)", icon: "🔴" };
 };
 </script>
 
 <template>
     <DashboardLayout role="teacher">
         <Head :title="`Triagem: ${student.user?.name} - EducAdapta`" />
+
+        <p class="card" style="padding: 1rem; margin-bottom: 1.25rem; color: var(--text-secondary); font-size: 0.85rem;">
+            Este índice resume a frequência das observações nos 30 itens: Nunca vale 0, Às vezes 1, Frequentemente 2 e Sempre 3. As respostas têm o mesmo peso e são convertidas em percentual; o índice não usa notas ou histórico escolar e serve apenas como apoio à conversa pedagógica.
+        </p>
 
         <!-- Header with student info -->
         <div
@@ -200,7 +204,7 @@ const getRiskLevel = (score) => {
                     width: 56px;
                     height: 56px;
                     border-radius: 50%;
-                    background: var(--accent-purple);
+                    background: var(--accent-purple-solid);
                     color: white;
                     display: flex;
                     align-items: center;
@@ -260,7 +264,7 @@ const getRiskLevel = (score) => {
                     :style="{
                         width: progress + '%',
                         background:
-                            'linear-gradient(90deg, var(--accent-blue), var(--accent-purple))',
+                            'var(--accent-blue)',
                     }"
                 ></div>
             </div>
@@ -287,7 +291,7 @@ const getRiskLevel = (score) => {
                     :style="{
                         background:
                             idx === currentStep
-                                ? area.color + '22'
+                                ? `color-mix(in srgb, ${area.color} 13%, transparent)`
                                 : 'var(--bg-dark)',
                         color:
                             idx === currentStep
@@ -296,7 +300,7 @@ const getRiskLevel = (score) => {
                         fontWeight: idx === currentStep ? '700' : '400',
                         border:
                             idx === currentStep
-                                ? '1px solid ' + area.color + '44'
+                                ? `1px solid ${area.color}`
                                 : '1px solid transparent',
                     }"
                 >
@@ -317,7 +321,7 @@ const getRiskLevel = (score) => {
                             ? 'rgba(16,185,129,0.15)'
                             : 'var(--bg-dark)',
                         color: isReviewStep
-                            ? '#10b981'
+                            ? 'var(--accent-green)'
                             : 'var(--text-secondary)',
                         fontWeight: isReviewStep ? '700' : '400',
                     }"
@@ -348,7 +352,7 @@ const getRiskLevel = (score) => {
                         font-size: 1.2rem;
                     "
                     :style="{
-                        background: currentArea.color + '22',
+                        background: `color-mix(in srgb, ${currentArea.color} 13%, transparent)`,
                         color: currentArea.color,
                     }"
                 >
@@ -378,7 +382,7 @@ const getRiskLevel = (score) => {
                     :style="{
                         borderColor:
                             form.answers[currentArea.key][qIdx] !== null
-                                ? currentArea.color + '33'
+                                ? currentArea.color
                                 : 'transparent',
                     }"
                 >
@@ -416,7 +420,7 @@ const getRiskLevel = (score) => {
                                 background:
                                     form.answers[currentArea.key][qIdx] ===
                                     option.value
-                                        ? option.color + '22'
+                                        ? `color-mix(in srgb, ${option.color} 13%, transparent)`
                                         : 'var(--bg-dark)',
                                 color:
                                     form.answers[currentArea.key][qIdx] ===
@@ -544,7 +548,7 @@ const getRiskLevel = (score) => {
                                 width: (getAreaScore(area.key) || 0) + '%',
                                 background:
                                     getRiskLevel(getAreaScore(area.key))
-                                        ?.color || '#6b7280',
+                                        ?.color || 'var(--text-secondary)',
                             }"
                         ></div>
                     </div>
@@ -606,7 +610,7 @@ const getRiskLevel = (score) => {
                 style="
                     background: rgba(245, 158, 11, 0.15);
                     border: 1px solid rgba(245, 158, 11, 0.3);
-                    color: #f59e0b;
+                    color: var(--accent-yellow);
                     padding: 0.75rem;
                     border-radius: var(--radius-md);
                     margin-bottom: 1rem;

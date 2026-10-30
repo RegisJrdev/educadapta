@@ -16,8 +16,8 @@ const props = defineProps({
         </h1>
         <p style="color: var(--text-secondary); margin-bottom: 2rem;">Todos os alunos cadastrados na plataforma.</p>
 
-        <div v-if="students?.length" class="card" style="overflow: hidden; padding: 0;">
-            <table style="width: 100%; border-collapse: collapse;">
+        <div v-if="students?.length" class="card" style="overflow-x: auto; padding: 0;">
+            <table style="width: 100%; min-width: 600px; border-collapse: collapse;">
                 <thead>
                     <tr style="background: var(--bg-light);">
                         <th style="text-align: left; padding: 0.75rem 1rem; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary);">Aluno</th>
@@ -32,7 +32,7 @@ const props = defineProps({
                         <td style="padding: 0.75rem 1rem;">
                             <div style="display: flex; align-items: center; gap: 0.75rem;">
                                 <div style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; color: white;"
-                                    :style="{ background: s.ai_profile ? 'var(--accent-green)' : 'var(--accent-purple)' }">
+                                    :style="{ background: s.ai_profile ? 'var(--accent-green-solid)' : 'var(--accent-purple-solid)' }">
                                     {{ s.user?.name?.charAt(0)?.toUpperCase() }}
                                 </div>
                                 <span style="font-weight: 600; font-size: 0.875rem;">{{ s.user?.name }}</span>

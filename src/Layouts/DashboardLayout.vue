@@ -1,6 +1,7 @@
 <script setup>
 import { Link, usePage, router } from "@/demo/navigation.js";
 import { ref, computed } from "vue";
+import ThemeToggle from '@/Components/ThemeToggle.vue';
 
 const props = defineProps({
     role: { type: String, required: true },
@@ -199,11 +200,7 @@ const roleLabel = computed(() => {
                         color: inherit;
                     "
                 >
-                    <img
-                        src="/images/logo.png"
-                        alt="EducAdapta"
-                        style="height: 36px; width: auto;"
-                    />
+                    <span class="sidebar-logo-mark"><img src="/images/logo.png" alt="" /></span>
                     <span>EducAdapta</span>
                 </Link>
             </div>
@@ -229,11 +226,8 @@ const roleLabel = computed(() => {
 
             <!-- Logout at bottom -->
             <div
+                class="sidebar-footer"
                 style="
-                    position: absolute;
-                    bottom: 0;
-                    left: 0;
-                    right: 0;
                     padding: 1rem 1.5rem;
                     border-top: 1px solid rgba(255, 255, 255, 0.1);
                 "
@@ -250,7 +244,7 @@ const roleLabel = computed(() => {
                         style="
                             width: 36px;
                             height: 36px;
-                            background: var(--accent-blue);
+                            background: var(--primary);
                             color: white;
                             border-radius: 50%;
                             display: flex;
@@ -283,6 +277,7 @@ const roleLabel = computed(() => {
                             {{ roleLabel }}
                         </p>
                     </div>
+                    <ThemeToggle />
                 </div>
                 <button
                     @click="logout"
@@ -302,12 +297,14 @@ const roleLabel = computed(() => {
 
         <!-- Mobile Header -->
         <header class="mobile-header">
-            <button class="hamburger" @click="sidebarOpen = !sidebarOpen">
+            <button class="hamburger" :aria-expanded="sidebarOpen" :aria-label="sidebarOpen ? 'Fechar menu' : 'Abrir menu'" @click="sidebarOpen = !sidebarOpen">
                 <i class="fas fa-bars"></i>
             </button>
             <span style="font-weight: 700">EducAdapta</span>
+            <ThemeToggle />
             <button
                 @click="logout"
+                aria-label="Sair do perfil"
                 style="
                     background: none;
                     border: none;

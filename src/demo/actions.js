@@ -47,13 +47,13 @@ export function applyAction(db, pathname, data, user) {
             db.students[0].xp += activity.xp_earned;
             db.students[0].level = Math.floor(db.students[0].xp / 500) + 1;
         }
-        return { message: 'Atividade concluída! Seu progresso foi salvo neste navegador.' };
+        return { message: 'Atividade concluída! Seu progresso foi salvo na demonstração.' };
     }
     if (pathname.endsWith('/messages')) {
         requireFields(data, ['receiver_id', 'content']);
         if (!db.users.some(u => u.id === Number(data.receiver_id) && u.id !== user.id)) throw new DemoValidationError({ receiver_id: 'Selecione um contato.' });
         db.messages.push({ id: nextId(db.messages), sender_id: user.id, receiver_id: Number(data.receiver_id), content: data.content.trim().slice(0, 2000), created_at: now });
-        return { message: 'Mensagem de exemplo salva neste navegador.' };
+        return { message: 'Mensagem de exemplo salva na demonstração.' };
     }
     if (pathname === '/psychologist/sessions') {
         requireFields(data, ['student_id', 'scheduled_at', 'focus']);
@@ -71,7 +71,7 @@ export function applyAction(db, pathname, data, user) {
         const student = db.students.find(s => s.id === Number(data.student_id));
         if (!student) throw new DemoValidationError({ student_id: 'Selecione um aluno.' });
         student.ai_profile = { ...data };
-        return { message: 'Perfil de adaptação salvo neste navegador.' };
+        return { message: 'Perfil de adaptação salvo na demonstração.' };
     }
     if (pathname === '/teacher/screenings') {
         if (!db.students.some(s => s.id === Number(data.student_id))) throw new DemoValidationError({ student_id: 'Selecione um aluno válido.' });
