@@ -1,171 +1,78 @@
 <script setup>
+import { motion, useReducedMotion } from 'motion-v';
+import { onMounted, onUnmounted } from 'vue';
 import { Head, Link } from '@/demo/navigation.js';
-import { ref, onMounted, onUnmounted } from 'vue';
-import ThemeToggle from '@/Components/ThemeToggle.vue';
+import LandingHeader from '@/Components/Landing/LandingHeader.vue';
+import LearningScene from '@/Components/Landing/LearningScene.vue';
+import AdaptationPreview from '@/Components/Landing/AdaptationPreview.vue';
+import ScrollJourney from '@/Components/Landing/ScrollJourney.vue';
+import LearningJourney from '@/Components/Landing/LearningJourney.vue';
+import LandingQuestions from '@/Components/Landing/LandingQuestions.vue';
+import '@/Components/Landing/landing.css';
+import 'lenis/dist/lenis.css';
 
-const currentSlide = ref(0);
-const slides = [
-    { image: '/images/carrosel1.jpg', title: 'Aprendizado Personalizado', desc: 'IA que adapta atividades para cada necessidade.' },
-    { image: '/images/carrosel2.webp', title: 'Ferramentas para Educadores', desc: 'Adapte atividades e acompanhe o progresso dos alunos.' },
-    { image: '/images/carrosel3.jpg', title: 'Tecnologia + Cuidado Humano', desc: 'Psicopedagogos treinam a IA com o perfil de cada aluno.' },
-];
-
-let interval;
-onMounted(() => { if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) interval = setInterval(() => { currentSlide.value = (currentSlide.value + 1) % slides.length; }, 5000); });
-onUnmounted(() => clearInterval(interval));
-
-const mobileMenuOpen = ref(false);
+const MotionDiv = motion.div;
+const reduced = useReducedMotion();
+let smoothScroll;
+let disposed = false;
+onMounted(async () => {
+    if (window.matchMedia('(pointer: coarse)').matches) return;
+    try {
+        const { default: Lenis } = await import('lenis');
+        if (disposed) return;
+        smoothScroll = new Lenis({ autoRaf: true, lerp: .1, smoothWheel: true, syncTouch: false, anchors: true, allowNestedScroll: true, stopInertiaOnNavigate: true });
+    } catch {
+        // A rolagem nativa continua disponível se o módulo não carregar.
+    }
+});
+onUnmounted(() => { disposed = true; smoothScroll?.destroy(); });
 </script>
 
 <template>
-    <Head title="EducAdapta - Plataforma de Educação Inclusiva" />
+    <Head title="EducAdapta | Cada aluno, um jeito de aprender" />
+    <div class="edu-landing">
+        <a class="edu-skip" href="#conteudo">Pular para o conteúdo</a>
+        <LandingHeader />
+        <main id="conteudo" tabindex="-1">
+            <section class="edu-hero edu-wrap" aria-labelledby="hero-title">
+                <MotionDiv class="edu-hero-copy" :initial="reduced ? false : { y: 24 }" :animate="{ y: 0 }" :transition="{ duration: .7, ease: [.16, 1, .3, 1] }">
+                    <h1 id="hero-title">Cada aluno.<br />Um jeito de <span>aprender.</span></h1>
+                    <p class="edu-hero-description">Conecte educadores, especialistas e atividades adaptadas. Abra espaço para o potencial de cada aluno.</p>
+                    <div class="edu-actions">
+                        <Link href="/demo" class="edu-button edu-button-primary">Explorar os perfis <span aria-hidden="true">↗</span></Link>
+                        <a href="#how-it-works" class="edu-text-link">Conhecer a plataforma <span aria-hidden="true">↓</span></a>
+                    </div>
+                </MotionDiv>
+                <LearningScene />
+            </section>
 
-    <!-- Navbar -->
-    <nav class="landing-nav">
-        <div class="container">
-            <Link href="/" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: white;">
-                <img src="/images/logo.png" alt="EducAdapta" style="height: 36px;" />
-                <span style="font-weight: 700; font-size: 1.1rem;">EducAdapta</span>
-            </Link>
-            <ul class="nav-links" :class="{ 'demo-menu-open': mobileMenuOpen }" @click="mobileMenuOpen = false">
-                <li><a href="#about">Sobre</a></li>
-                <li><a href="#features">Funcionalidades</a></li>
-                <li><a href="#how-it-works">Como Funciona</a></li>
-                <li><Link :href="route('login')" class="btn btn-primary btn-sm">Explorar demo</Link></li>
-            </ul>
-            <ThemeToggle />
-            <button :aria-label="mobileMenuOpen ? 'Fechar menu' : 'Abrir menu'" :aria-expanded="mobileMenuOpen" class="hamburger" style="display: none;" @click="mobileMenuOpen = !mobileMenuOpen">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-    </nav>
+            <section id="about" class="edu-about edu-wrap" aria-labelledby="about-title">
+                <div class="edu-about-image">
+                    <img src="/images/carrosel1.jpg" width="1254" height="837" loading="lazy" alt="Criança desenhando e colorindo um coração em uma atividade criativa" />
+                </div>
+                <MotionDiv class="edu-about-copy" :initial="reduced ? false : { y: 22 }" :while-in-view="{ y: 0 }" :in-view-options="{ once: true, amount: .3 }" :transition="{ duration: .6 }">
+                    <h2 id="about-title">A mesma oportunidade.<br /><span>Outros caminhos.</span></h2>
+                    <p>Uma atividade pode ganhar frases mais claras, etapas menores ou novos apoios. O objetivo continua o mesmo: aprender com autonomia.</p>
+                    <p>O EducAdapta aproxima quem ensina de quem acompanha o desenvolvimento. A tecnologia apoia. O olhar humano orienta.</p>
+                    <a href="#features" class="edu-text-link">Veja a adaptação em ação <span aria-hidden="true">↗</span></a>
+                </MotionDiv>
+            </section>
 
-    <!-- Hero with Carousel -->
-    <section class="hero">
-        <div class="container" style="display: flex; align-items: center; gap: 3rem;">
-            <div style="flex: 1;" class="fade-in-up">
-                <h1>{{ slides[currentSlide].title }}</h1>
-                <p>{{ slides[currentSlide].desc }}</p>
-                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                    <Link :href="route('register')" class="btn btn-primary btn-lg">Explorar os perfis</Link>
-                    <a href="#how-it-works" class="btn btn-outline btn-lg" style="border-color: white; color: white;">
-                        Saiba Mais
-                    </a>
-                </div>
-                <!-- Dots -->
-                <div style="display: flex; gap: 0.5rem; margin-top: 2rem;">
-                    <button v-for="(s, i) in slides" :key="i" type="button" :aria-label="`Mostrar ${s.title}`" :aria-pressed="currentSlide === i"
-                        @click="currentSlide = i"
-                        :style="{
-                            width: currentSlide === i ? '2rem' : '0.5rem',
-                            height: '0.5rem',
-                            background: currentSlide === i ? 'var(--lime)' : 'rgba(255,255,255,0.4)',
-                            borderRadius: '9999px',
-                            cursor: 'pointer',
-                            border: '0',
-                            transition: 'all 0.3s ease',
-                        }"
-                    />
-                </div>
-            </div>
-            <div style="flex: 1; display: flex; justify-content: center;" class="fade-in-up">
-                <img :src="slides[currentSlide].image"
-                    :alt="slides[currentSlide].title"
-                    style="max-width: 100%; height: 320px; object-fit: cover; border-radius: 1rem; box-shadow: 0 20px 40px rgba(0,0,0,0.3); transition: all 0.5s ease;"
-                />
-            </div>
-        </div>
-    </section>
+            <AdaptationPreview />
+            <ScrollJourney />
+            <LearningJourney />
+            <LandingQuestions />
 
-    <!-- About -->
-    <section id="about" class="section" style="background: var(--bg-white);">
-        <div class="container">
-            <h2 class="section-title">Sobre o EducAdapta</h2>
-            <p class="section-subtitle">Uma plataforma que conecta IA, educadores e profissionais da saúde para adaptar atividades escolares para alunos com transtornos de aprendizagem.</p>
-            <div class="grid grid-3">
-                <div class="card feature-card">
-                    <i class="fas fa-brain"></i>
-                    <h3>IA Treinada por Especialistas</h3>
-                    <p>Psicopedagogos definem as regras de adaptação para cada aluno, e a IA segue fielmente.</p>
-                </div>
-                <div class="card feature-card">
-                    <i class="fas fa-universal-access"></i>
-                    <h3>Inclusão Real</h3>
-                    <p>Suporte para dislexia, discalculia, disgrafia, TDAH, TEA e outras necessidades.</p>
-                </div>
-                <div class="card feature-card">
-                    <i class="fas fa-gamepad"></i>
-                    <h3>Gamificação</h3>
-                    <p>Alunos ganham XP e conquistas ao completar atividades, tornando o aprendizado divertido.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features -->
-    <section id="features" class="section">
-        <div class="container">
-            <h2 class="section-title">Funcionalidades</h2>
-            <p class="section-subtitle">Tudo que você precisa para uma educação verdadeiramente inclusiva.</p>
-            <div class="grid grid-4">
-                <div class="card feature-card">
-                    <i class="fas fa-user-md" style="color: var(--accent-green);"></i>
-                    <h3>Perfil IA por Aluno</h3>
-                    <p>Psicopedagogos criam perfis detalhados para cada aluno.</p>
-                </div>
-                <div class="card feature-card">
-                    <i class="fas fa-file-alt" style="color: var(--accent-purple);"></i>
-                    <h3>Adaptação Automática</h3>
-                    <p>Professores enviam atividades e a IA adapta automaticamente.</p>
-                </div>
-                <div class="card feature-card">
-                    <i class="fas fa-comments" style="color: var(--accent-pink);"></i>
-                    <h3>Comunicação em Tempo Real</h3>
-                    <p>Chat entre profissionais, professores e famílias.</p>
-                </div>
-                <div class="card feature-card">
-                    <i class="fas fa-chart-line" style="color: var(--accent-red);"></i>
-                    <h3>Relatórios e Gráficos</h3>
-                    <p>Dashboards com métricas de progresso e engajamento.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- How it Works -->
-    <section id="how-it-works" class="section" style="background: var(--primary-dark); color: white;">
-        <div class="container">
-            <h2 class="section-title" style="color: white;">Como Funciona</h2>
-            <p class="section-subtitle" style="color: rgba(255,255,255,0.7);">Pipeline de IA em 4 etapas</p>
-            <div class="grid grid-4">
-                <div style="text-align: center; padding: 1.5rem;">
-                    <div style="width: 60px; height: 60px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem; font-weight: 700;">1</div>
-                    <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">Psicopedagoga Cria Perfil</h3>
-                    <p style="font-size: 0.8rem; opacity: 0.8;">Define transtornos, regras e preferências do aluno.</p>
-                </div>
-                <div style="text-align: center; padding: 1.5rem;">
-                    <div style="width: 60px; height: 60px; background: var(--accent-green-solid); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem; font-weight: 700;">2</div>
-                    <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">Professor Envia Atividade</h3>
-                    <p style="font-size: 0.8rem; opacity: 0.8;">Anexa PDF ou texto e seleciona os alunos.</p>
-                </div>
-                <div style="text-align: center; padding: 1.5rem;">
-                    <div style="width: 60px; height: 60px; background: var(--accent-purple-solid); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem; font-weight: 700;">3</div>
-                    <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">IA Adapta</h3>
-                    <p style="font-size: 0.8rem; opacity: 0.8;">A IA combina perfil + atividade e gera versão personalizada.</p>
-                </div>
-                <div style="text-align: center; padding: 1.5rem;">
-                    <div style="width: 60px; height: 60px; background: var(--lime); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem; font-weight: 700; color: #111b08;">4</div>
-                    <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">Aluno Recebe</h3>
-                    <p style="font-size: 0.8rem; opacity: 0.8;">Recebe a atividade adaptada e ganha XP ao completar!</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer style="background: var(--primary-dark); color: rgba(255,255,255,0.6); padding: 2rem 0; text-align: center; font-size: 0.8rem;">
-        <div class="container">
-            <p>&copy; {{ new Date().getFullYear() }} EducAdapta. Todos os direitos reservados.</p>
-        </div>
-    </footer>
+            <section class="edu-final edu-wrap" aria-labelledby="final-title">
+                <h2 id="final-title">Mais possibilidades.<br /><span>Para cada aluno.</span></h2>
+                <p>Explore os cinco perfis e descubra como cada pessoa participa da jornada.</p>
+                <Link href="/demo" class="edu-button edu-button-primary">Explorar os perfis <span aria-hidden="true">↗</span></Link>
+            </section>
+        </main>
+        <footer class="edu-footer edu-wrap">
+            <Link href="/" class="edu-brand" aria-label="EducAdapta, início"><img src="/images/logo.png" alt="" width="36" height="36" /><span>EducAdapta<span class="edu-brand-period">.</span></span></Link>
+            <p>Educação que reconhece cada jeito de aprender.</p>
+            <small>© {{ new Date().getFullYear() }} EducAdapta</small>
+        </footer>
+    </div>
 </template>
