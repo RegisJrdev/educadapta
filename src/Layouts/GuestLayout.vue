@@ -35,7 +35,7 @@ import { Link } from '@/demo/navigation.js';
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: #ffffff;
+    background: var(--bg-card);
     padding: 3rem;
     gap: 0.5rem;
 }
@@ -48,7 +48,7 @@ import { Link } from '@/demo/navigation.js';
 .auth-brand-title {
     font-size: 2rem;
     font-weight: 800;
-    color: var(--primary);
+    color: var(--text-primary);
     margin: 0;
     line-height: 1.2;
 }
@@ -73,7 +73,7 @@ import { Link } from '@/demo/navigation.js';
 .auth-card {
     width: 100%;
     max-width: 400px;
-    background: #ffffff;
+    background: var(--bg-card);
     border-radius: 1.25rem;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
     padding: 1.75rem 2rem;

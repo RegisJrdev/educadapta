@@ -13,27 +13,27 @@ const flash = computed(() => page.props.flash || {});
 
 const riskConfig = {
     baixo: {
-        label: "Baixo Risco",
-        color: "#10b981",
-        bg: "rgba(16,185,129,0.15)",
+        label: "Rotina",
+        color: "var(--accent-green)",
+        bg: "color-mix(in srgb, var(--accent-green) 10%, var(--bg-card))",
         icon: "🟢",
     },
     atencao: {
-        label: "Atenção",
-        color: "#f59e0b",
-        bg: "rgba(245,158,11,0.15)",
+        label: "Atenção pontual",
+        color: "var(--accent-yellow)",
+        bg: "color-mix(in srgb, var(--accent-yellow) 10%, var(--bg-card))",
         icon: "🟡",
     },
     moderado: {
-        label: "Moderado",
-        color: "#f97316",
-        bg: "rgba(249,115,22,0.15)",
+        label: "Acompanhamento próximo",
+        color: "var(--accent-orange)",
+        bg: "color-mix(in srgb, var(--accent-orange) 10%, var(--bg-card))",
         icon: "🟠",
     },
     alto: {
-        label: "Alto Risco",
-        color: "#ef4444",
-        bg: "rgba(239,68,68,0.15)",
+        label: "Apoio prioritário",
+        color: "var(--accent-red)",
+        bg: "color-mix(in srgb, var(--accent-red) 10%, var(--bg-card))",
         icon: "🔴",
     },
 };
@@ -74,8 +74,7 @@ const formatDate = (dateStr) => {
                     Triagem
                 </h1>
                 <p style="color: var(--text-secondary); font-size: 0.875rem">
-                    Questionário de rastreio para identificar possíveis
-                    dificuldades de aprendizagem.
+                    Registre observações sobre aprendizagem, participação e comportamento em sala.
                 </p>
             </div>
         </div>
@@ -86,7 +85,7 @@ const formatDate = (dateStr) => {
             style="
                 background: rgba(16, 185, 129, 0.15);
                 border: 1px solid rgba(16, 185, 129, 0.3);
-                color: #10b981;
+                color: var(--accent-green);
                 padding: 1rem;
                 border-radius: var(--radius-md);
                 margin-bottom: 1.5rem;
@@ -151,7 +150,7 @@ const formatDate = (dateStr) => {
                             width: 40px;
                             height: 40px;
                             border-radius: 50%;
-                            background: var(--accent-purple);
+                            background: var(--accent-purple-solid);
                             color: white;
                             display: flex;
                             align-items: center;
@@ -225,7 +224,7 @@ const formatDate = (dateStr) => {
                                 width: 42px;
                                 height: 42px;
                                 border-radius: 50%;
-                                background: var(--accent-blue);
+                                background: var(--primary);
                                 color: white;
                                 display: flex;
                                 align-items: center;

@@ -56,7 +56,7 @@ const formatDateTime = (d) => {
         <!-- New Session Form -->
         <div v-if="showForm" class="card" style="margin-bottom: 1.5rem; border-left: 4px solid var(--accent-blue);">
             <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem;">Agendar Nova Sessão</h3>
-            <form @submit.prevent="submit" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <form @submit.prevent="submit" class="responsive-form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                 <div class="form-group">
                     <label class="form-label">Aluno</label>
                     <select v-model="form.student_id" class="form-select" required>
@@ -89,7 +89,7 @@ const formatDateTime = (d) => {
         <div v-if="sessions?.data?.length" style="display: flex; flex-direction: column; gap: 0.75rem;">
             <div v-for="s in sessions.data" :key="s.id" class="card" style="display: flex; align-items: center; gap: 1rem; padding: 1rem;">
                 <div style="width: 50px; height: 50px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-direction: column; flex-shrink: 0;"
-                    :style="{ background: statusColor(s.status) + '15', color: statusColor(s.status) }">
+                    :style="{ background: `color-mix(in srgb, ${statusColor(s.status)} 10%, transparent)`, color: statusColor(s.status) }">
                     <span style="font-weight: 700; font-size: 1rem; line-height: 1;">{{ new Date(s.scheduled_at).getDate() }}</span>
                     <span style="font-size: 0.6rem; text-transform: uppercase;">{{ new Date(s.scheduled_at).toLocaleDateString('pt-BR', { month: 'short' }) }}</span>
                 </div>
@@ -100,7 +100,7 @@ const formatDateTime = (d) => {
                     </p>
                     <p v-if="s.notes" style="font-size: 0.7rem; color: var(--text-light); margin-top: 0.25rem;">{{ s.notes }}</p>
                 </div>
-                <span class="badge" :style="{ background: statusColor(s.status) + '20', color: statusColor(s.status) }">
+                <span class="badge" :style="{ background: `color-mix(in srgb, ${statusColor(s.status)} 12%, transparent)`, color: statusColor(s.status) }">
                     {{ statusLabel(s.status) }}
                 </span>
             </div>

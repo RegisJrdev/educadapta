@@ -61,18 +61,18 @@ const submit = () => {
             </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 220px 1fr; gap: 1rem; height: calc(100vh - 140px);">
+        <div class="training-layout" style="display: grid; grid-template-columns: 220px 1fr; gap: 1rem; height: calc(100vh - 140px);">
             <!-- Student List -->
             <div class="card" style="overflow-y: auto; padding: 1rem;">
                 <h3 style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 0.75rem;">Alunos</h3>
-                <div v-for="s in students" :key="s.id"
+                <button v-for="s in students" :key="s.id" type="button" :aria-pressed="selectedStudent?.id === s.id"
                     @click="selectStudent(s)"
-                    style="padding: 0.5rem 0.625rem; border-radius: var(--radius-md); cursor: pointer; margin-bottom: 0.3rem; transition: all 0.2s;"
+                    style="display: block; width: 100%; text-align: left; font: inherit; color: var(--text-primary); border: 0; padding: 0.5rem 0.625rem; border-radius: var(--radius-md); cursor: pointer; margin-bottom: 0.3rem; transition: all 0.2s;"
                     :style="{ background: selectedStudent?.id === s.id ? 'rgba(59,130,246,0.1)' : 'transparent', borderLeft: selectedStudent?.id === s.id ? '3px solid var(--accent-blue)' : '3px solid transparent' }">
                     <p style="font-weight: 600; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ s.user?.name }}</p>
                     <span v-if="s.ai_profile" class="badge badge-green" style="font-size: 0.58rem; padding: 0.1rem 0.4rem;">IA ✓</span>
                     <span v-else class="badge badge-yellow" style="font-size: 0.58rem; padding: 0.1rem 0.4rem;">Sem perfil</span>
-                </div>
+                </button>
             </div>
 
             <!-- Profile Form -->
@@ -90,7 +90,7 @@ const submit = () => {
                         </div>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="responsive-form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
                             <label class="form-label">Nível de Complexidade</label>
                             <select v-model="form.complexity_level" class="form-select">

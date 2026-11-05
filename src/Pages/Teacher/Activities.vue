@@ -19,8 +19,8 @@ const closePreview = () => {
 };
 
 const statusColor = (s) => {
-    const map = { processando: '#E8A317', concluida: '#22C55E', erro: '#EF4444', pendente: '#94A3B8', falha: '#EF4444' };
-    return map[s] || '#94A3B8';
+    const map = { processando: 'var(--accent-yellow)', concluida: 'var(--accent-green)', erro: 'var(--accent-red)', pendente: 'var(--text-secondary)', falha: 'var(--accent-red)' };
+    return map[s] || 'var(--text-secondary)';
 };
 
 const statusLabel = (s) => {
@@ -70,8 +70,8 @@ const truncate = (text, max = 150) => {
             </Link>
         </div>
 
-        <div v-if="activities?.data?.length" class="card" style="overflow: hidden; padding: 0;">
-            <table style="width: 100%; border-collapse: collapse;">
+        <div v-if="activities?.data?.length" class="card" style="overflow-x: auto; padding: 0;">
+            <table style="width: 100%; min-width: 650px; border-collapse: collapse;">
                 <thead>
                     <tr style="background: var(--bg-light);">
                         <th style="text-align: left; padding: 0.75rem 1rem; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary);">Título</th>
@@ -98,7 +98,7 @@ const truncate = (text, max = 150) => {
                             <span style="font-weight: 700; font-size: 0.9rem;">{{ a.adapted_activities_count || 0 }}</span>
                         </td>
                         <td style="padding: 0.75rem 1rem; text-align: center;">
-                            <span class="badge" :style="{ background: statusColor(overallStatus(a)) + '20', color: statusColor(overallStatus(a)) }">
+                            <span class="badge" :style="{ background: `color-mix(in srgb, ${statusColor(overallStatus(a))} 12%, transparent)`, color: statusColor(overallStatus(a)) }">
                                 <i :class="statusIcon(overallStatus(a))" style="margin-right: 4px;"></i>
                                 {{ statusLabel(overallStatus(a)) }}
                             </span>
@@ -173,7 +173,7 @@ const truncate = (text, max = 150) => {
                                         </p>
                                     </div>
                                 </div>
-                                <span class="badge" :style="{ background: statusColor(adapt.status) + '20', color: statusColor(adapt.status) }">
+                                <span class="badge" :style="{ background: `color-mix(in srgb, ${statusColor(adapt.status)} 12%, transparent)`, color: statusColor(adapt.status) }">
                                     <i :class="statusIcon(adapt.status)" style="margin-right: 4px;"></i>
                                     {{ statusLabel(adapt.status) }}
                                 </span>
@@ -319,7 +319,7 @@ const truncate = (text, max = 150) => {
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent-purple, #8B5CF6), var(--accent-blue, #3B82F6));
+    background: var(--primary);
     color: #fff;
     display: flex;
     align-items: center;

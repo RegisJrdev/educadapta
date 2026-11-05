@@ -306,7 +306,7 @@ const closePreview = () => {
                         class="custom-check student-item"
                         :style="{
                             borderColor: form.student_ids.includes(s.id) ? 'var(--accent-blue)' : 'var(--border)',
-                            background: form.student_ids.includes(s.id) ? 'rgba(59,130,246,0.05)' : 'white',
+                            background: form.student_ids.includes(s.id) ? 'var(--bg-secondary)' : 'var(--bg-card)',
                         }"
                     >
                         <input type="checkbox" :value="s.id" @change="toggleStudent(s.id)" :checked="form.student_ids.includes(s.id)" />
@@ -707,7 +707,7 @@ const closePreview = () => {
     font-size: 0.9rem;
     font-weight: 700;
     margin: 0 0 0.75rem 0;
-    color: var(--primary);
+    color: var(--link);
     gap: 0.4rem;
     display: flex;
     align-items: center;

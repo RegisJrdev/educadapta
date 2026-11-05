@@ -18,10 +18,10 @@ const props = defineProps({
             </div>
         </div>
 
-        <div v-if="classRooms?.length" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
+        <div v-if="classRooms?.length" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 1rem;">
             <div v-for="room in classRooms" :key="room.id" class="card" style="padding: 1.5rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-                    <div style="width: 45px; height: 45px; border-radius: var(--radius-md); background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); display: flex; align-items: center; justify-content: center;">
+                    <div style="width: 45px; height: 45px; border-radius: var(--radius-md); background: var(--primary); display: flex; align-items: center; justify-content: center;">
                         <i class="fas fa-chalkboard" style="color: white; font-size: 1.1rem;"></i>
                     </div>
                     <div>

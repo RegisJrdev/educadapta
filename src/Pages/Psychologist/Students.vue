@@ -16,10 +16,10 @@ const props = defineProps({
         </h1>
         <p style="color: var(--text-secondary); margin-bottom: 2rem;">Alunos que você acompanha nas sessões.</p>
 
-        <div v-if="students?.length" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem;">
+        <div v-if="students?.length" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 1rem;">
             <div v-for="s in students" :key="s.id" class="card" style="padding: 1.5rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-                    <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--accent-blue); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem;">
+                    <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem;">
                         {{ s.user?.name?.charAt(0)?.toUpperCase() }}
                     </div>
                     <div>

@@ -60,7 +60,7 @@ const formatDate = (d) => {
         <div v-if="showForm" class="card" style="margin-bottom: 1.5rem; border-left: 4px solid var(--accent-green);">
             <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem;">Novo Plano de Intervenção</h3>
             <form @submit.prevent="submit">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="responsive-form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                     <div class="form-group">
                         <label class="form-label">Aluno</label>
                         <select v-model="form.student_id" class="form-select" required>
@@ -113,7 +113,7 @@ const formatDate = (d) => {
                             {{ formatDate(p.start_date) }} → {{ formatDate(p.end_date) }}
                         </p>
                     </div>
-                    <span class="badge" :style="{ background: statusColor(p.status) + '20', color: statusColor(p.status) }">
+                    <span class="badge" :style="{ background: `color-mix(in srgb, ${statusColor(p.status)} 12%, transparent)`, color: statusColor(p.status) }">
                         {{ statusLabel(p.status) }}
                     </span>
                 </div>

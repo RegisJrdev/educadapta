@@ -45,32 +45,32 @@ const formatDate = (d) => {
         <p style="color: var(--text-secondary); margin-bottom: 2rem;">Seus troféus e badges ganhos ao completar atividades.</p>
 
         <!-- Level & XP Banner -->
-        <div class="card" style="margin-bottom: 2rem; background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); color: white; display: flex; align-items: center; gap: 2rem; padding: 1.5rem;">
+        <div class="card" style="margin-bottom: 2rem; background: var(--primary); color: white; display: flex; align-items: center; flex-wrap: wrap; gap: 2rem; padding: 1.5rem;">
             <div style="text-align: center;">
                 <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 700;">
                     {{ currentLevel }}
                 </div>
-                <p style="font-size: 0.75rem; margin-top: 0.25rem; opacity: 0.8;">Nível</p>
+                <p style="font-size: 0.75rem; margin-top: 0.25rem;">Nível</p>
             </div>
             <div style="flex: 1;">
                 <p style="font-size: 1.1rem; font-weight: 600;">{{ totalXp }} XP</p>
                 <div style="background: rgba(255,255,255,0.2); border-radius: 999px; height: 8px; margin-top: 0.5rem;">
-                    <div style="height: 100%; border-radius: 999px; background: var(--accent-yellow); transition: width 0.5s;"
+                    <div style="height: 100%; border-radius: 999px; background: var(--lime); transition: width 0.5s;"
                         :style="{ width: xpProgress + '%' }"></div>
                 </div>
-                <p style="font-size: 0.7rem; opacity: 0.7; margin-top: 0.25rem;">{{ xpToNext }} XP para o próximo nível</p>
+                <p style="font-size: 0.7rem; margin-top: 0.25rem;">{{ xpToNext }} XP para o próximo nível</p>
             </div>
             <div style="text-align: center;">
                 <div style="font-size: 2rem; font-weight: 700;">{{ achievements?.length || 0 }}</div>
-                <p style="font-size: 0.75rem; opacity: 0.8;">Conquistas</p>
+                <p style="font-size: 0.75rem;">Conquistas</p>
             </div>
         </div>
 
         <!-- Achievements Grid -->
         <div v-if="achievements?.length" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
             <div v-for="a in achievements" :key="a.id" class="card" style="text-align: center; padding: 1.5rem;">
-                <div style="width: 60px; height: 60px; margin: 0 auto 0.75rem; border-radius: 50%; background: linear-gradient(135deg, var(--accent-yellow), #f59e0b); display: flex; align-items: center; justify-content: center;">
-                    <i :class="a.icon || getIcon(a.title)" style="font-size: 1.5rem; color: white;"></i>
+                <div style="width: 60px; height: 60px; margin: 0 auto 0.75rem; border-radius: 50%; background: var(--lime); display: flex; align-items: center; justify-content: center;">
+                    <i :class="a.icon || getIcon(a.title)" style="font-size: 1.5rem; color: #111b08;"></i>
                 </div>
                 <h3 style="font-weight: 700; font-size: 0.95rem; margin-bottom: 0.25rem;">{{ a.title }}</h3>
                 <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.5rem;">{{ a.description }}</p>

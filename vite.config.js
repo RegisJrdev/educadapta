@@ -5,6 +5,7 @@ import { fileURLToPath, URL } from 'node:url';
 export default defineConfig({
     plugins: [vue()],
     resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
-    // O projeto Laravel pai possui PostCSS próprio; a demo usa o CSS extraído.
+    server: { proxy: { '/api': 'http://127.0.0.1:8000' } },
+    // Mantém o CSS extraído sem depender de configuração PostCSS externa.
     css: { postcss: { plugins: [] } },
 });
