@@ -183,3 +183,39 @@ test('sessões, planos e perfis de adaptação atualizam a demonstração', () =
     assert.equal(db.students[0].ai_profile.complexity_level, 'baixo');
     assert.doesNotThrow(() => JSON.stringify(db));
 });
+
+test('demonstração gera exercícios distintos por aluno e salva exatamente a prévia', () => {
+    const db = createInitialData();
+    const data = { title: 'O ciclo da água', subject: 'Ciências', content: 'A água passa por evaporação, condensação e precipitação.', student_ids: db.students.map(s => s.id) };
+    const preview = previewAdaptation(db, data);
+    const exercises = preview.alunos.map(s => s.adaptacao.content.split('SEU ROTEIRO\n')[1].split('\n\nAPOIO PARA REALIZAR')[0]);
+    assert.equal(new Set(exercises).size, db.students.length);
+    for (const student of preview.alunos) {
+        assert.ok(student.adaptacao.content.includes(data.content));
+        assert.ok(student.adaptacao.content.includes('SIMULAÇÃO SEM IA'));
+    }
+    assert.match(preview.alunos[0].adaptacao.content, /Desenhe o Sol/);
+    assert.match(preview.alunos[1].adaptacao.content, /Missão 1/);
+    applyAction(db, '/teacher/adapt/confirm', data, db.users[0]);
+    for (const student of preview.alunos) {
+        const saved = db.adapted.find(a => a.activity_id === db.activities[0].id && a.student_id === student.id);
+        assert.equal(saved.adapted_content, student.adaptacao.content);
+        assert.equal(saved.adaptation_format, student.adaptacao.format);
+    }
+});
+
+test('adaptação usa os apoios configurados, mantém outros conteúdos e não interpreta PDF', () => {
+    const db = createInitialData();
+    db.students[0].ai_profile = { complexity_level: 'baixo', sensory_preference: 'auditivo', rules: [{ rule_description: 'Oferecer tempo para responder.' }] };
+    db.students[1].ai_profile = null;
+    const data = { title: 'Biblioteca', content: 'Identifique os personagens e o lugar da história.', student_ids: [1, 2] };
+    const preview = previewAdaptation(db, data);
+    assert.match(preview.alunos[0].adaptacao.content, /Leia as instruções em voz alta/);
+    assert.match(preview.alunos[0].adaptacao.content, /Oferecer tempo para responder/);
+    assert.match(preview.alunos[0].adaptacao.content, /Faça uma etapa por vez/);
+    assert.ok(preview.alunos[0].adaptacao.content.includes(data.content));
+    assert.doesNotMatch(preview.alunos[0].adaptacao.content, /evaporação|condensação/);
+    assert.equal(preview.alunos[1].adaptacao, null);
+    const pdf = previewAdaptation(db, { title: 'PDF', file: { name: 'atividade.pdf' }, student_ids: [1] });
+    assert.match(pdf.alunos[0].adaptacao.content, /PDF não é processado/);
+});

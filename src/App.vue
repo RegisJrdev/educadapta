@@ -24,6 +24,5 @@ provide('theme', { theme, toggleTheme: () => setTheme(theme.value === 'dark' ? '
         <span>{{ view.notice }}</span>
         <button type="button" aria-label="Fechar aviso" @click="view.notice = ''">×</button>
     </div>
-    <p v-if="!isLanding && view.ready && !view.backend" class="demo-storage-warning">O backend PHP/SQLite não está conectado. As alterações ficam só neste navegador.</p>
     <component :is="currentPage" :key="view.url" v-bind="currentProps" />
 </template>

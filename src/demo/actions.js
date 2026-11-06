@@ -1,3 +1,4 @@
+import { generateDemoAdaptation } from './adaptation.js';
 import { areas, riskForScore } from './data.js';
 
 export class DemoValidationError extends Error {
@@ -21,7 +22,7 @@ export function previewAdaptation(db, data) {
     return {
         titulo: data.title, materia: data.subject || 'Geral', tipo: data.file ? 'pdf' : 'texto',
         conteudo: data.file ? `Arquivo selecionado: ${data.file.name}\n\nNa demonstração, o PDF não é processado. A adaptação usará um exemplo fixo. Para testar seu conteúdo, escolha a opção Texto.` : data.content,
-        alunos: students.map(s => ({ id: s.id, nome: s.user.name, possui_perfil_ia: Boolean(s.ai_profile), transtornos: s.ai_profile?.disorders || [], nivel_complexidade: s.ai_profile?.complexity_level || '-' })),
+        alunos: students.map(s => ({ id: s.id, nome: s.user.name, possui_perfil_ia: Boolean(s.ai_profile), transtornos: s.ai_profile?.disorders || [], nivel_complexidade: s.ai_profile?.complexity_level || '-', adaptacao: s.ai_profile ? generateDemoAdaptation(data, s) : null })),
         resumo: { total_alunos: students.length, com_perfil_ia: students.filter(s => s.ai_profile).length, sem_perfil_ia: students.filter(s => !s.ai_profile).length },
     };
 }
@@ -34,9 +35,9 @@ export function applyAction(db, pathname, data, user) {
         db.activities.unshift(activity);
         for (const student of preview.alunos.filter(s => s.possui_perfil_ia)) db.adapted.unshift({
             id: nextId(db.adapted), activity_id: activity.id, student_id: student.id, xp_earned: 50, status: 'concluida', completed_by_student: false,
-            adapted_content: `EXEMPLO DE ADAPTAÇÃO — SIMULAÇÃO\n\n${activity.title}\n\nVamos praticar em pequenos passos:\n1. Leia o conteúdo com calma.\n2. Marque as palavras que você conhece.\n3. Conte o que entendeu com suas palavras ou faça um desenho.\n\nConteúdo de referência:\n${data.file ? 'Observe uma figura com três objetos. Conte os objetos e desenhe mais um.' : data.content}\n\nEste exemplo usa um modelo fixo. A IA do sistema original não é executada nesta demonstração.`,
+            adapted_content: student.adaptacao.content, adaptation_format: student.adaptacao.format,
         });
-        return { redirect: '/teacher/activities', message: 'Adaptação de exemplo criada! Veja o resultado nas atividades.' };
+        return { redirect: '/teacher/activities', message: 'Versões demonstrativas criadas! Compare os resultados por aluno nas atividades.' };
     }
     const complete = pathname.match(/^\/student\/activities\/(\d+)\/complete$/);
     if (complete) {

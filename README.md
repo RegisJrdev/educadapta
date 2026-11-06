@@ -113,3 +113,7 @@ O projeto Laravel original permanece separado e sem alterações.
 - `vercel.json`: configuração de publicação estática.
 
 Para mudar os exemplos iniciais, edite `src/demo/data.js` e clique em **Reiniciar demo** para substituir o estado compartilhado.
+
+## Novo sistema React
+
+O sistema interno agora é servido pelo projeto [react-app](react-app/README.md), com React, TypeScript, shadcn/ui e Bento Grid da Aceternity (21st.dev). A landing original continua em Vue na rota `/`. Execute `npm run dev` para acessar os dois no mesmo servidor. Use `npm run dev:react` para trabalhar apenas no novo projeto.

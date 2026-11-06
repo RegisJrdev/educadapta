@@ -50,7 +50,7 @@ test('todas as telas Vue renderizam com os dados estáticos, sem Laravel', async
                 assert.doesNotMatch(journey, /is-scroll-story|aria-live=/, 'a jornada inicia legível sem depender de scroll ou anúncios contínuos');
             } else {
                 assert.match(html, /Aviso de armazenamento da demonstração/);
-                assert.match(html, /demo-storage-warning/);
+                assert.doesNotMatch(html, /demo-storage-warning/);
             }
             if (path === '/pagina-inexistente') {
                 assert.match(html, /Página não encontrada/);

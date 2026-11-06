@@ -2,3 +2,6 @@ node_modules/
 dist/
 .vercel/
 .DS_Store
+
+react-app/node_modules/
+react-app/dist/

@@ -1,0 +1,68 @@
+[
+  {
+    "key": "atencao",
+    "title": "Atenção e Concentração",
+    "questions": [
+      "O aluno tem dificuldade em manter o foco durante atividades em sala?",
+      "Distrai-se facilmente com estímulos irrelevantes?",
+      "Tem dificuldade em organizar tarefas e materiais?",
+      "Apresenta comportamento impulsivo (responde antes de pensar)?",
+      "Mostra agitação motora excessiva (mexe mãos, pés, levanta)?"
+    ]
+  },
+  {
+    "key": "leitura",
+    "title": "Leitura e Escrita",
+    "questions": [
+      "Apresenta leitura lenta e/ou fragmentada?",
+      "Troca letras semelhantes ao ler ou escrever (b/d, p/q)?",
+      "Tem dificuldade em compreender textos lidos?",
+      "A caligrafia é irregular ou difícil de ler?",
+      "Comete muitos erros ortográficos não condizentes com a idade?"
+    ]
+  },
+  {
+    "key": "raciocinio",
+    "title": "Raciocínio Lógico-Matemático",
+    "questions": [
+      "Tem dificuldade em reconhecer números e quantidades?",
+      "Apresenta dificuldade com operações matemáticas básicas?",
+      "Não consegue seguir sequências numéricas (contar, ordenar)?",
+      "Tem dificuldade em resolver problemas matemáticos simples?",
+      "Confunde conceitos de geometria e medidas?"
+    ]
+  },
+  {
+    "key": "comportamento",
+    "title": "Convivência e participação",
+    "questions": [
+      "Tem dificuldade em interagir com colegas de classe?",
+      "Mostra rigidez em rotinas e resistência a mudanças?",
+      "Apresenta dificuldade em demonstrar empatia ou entender emoções?",
+      "Prefere ficar isolado(a) durante atividades em grupo?",
+      "Demonstra ansiedade excessiva em situações sociais ou avaliações?"
+    ]
+  },
+  {
+    "key": "coordenacao",
+    "title": "Coordenação Motora",
+    "questions": [
+      "Tem dificuldade com motricidade fina (segurar lápis, abotoar)?",
+      "Apresenta dificuldade em recortar com tesoura ou usar régua?",
+      "Demonstra falta de equilíbrio ou coordenação corporal?",
+      "Os desenhos são desproporcionais ou difíceis de interpretar para a idade?",
+      "A escrita manual é muito lenta ou requer esforço excessivo?"
+    ]
+  },
+  {
+    "key": "comunicacao",
+    "title": "Comunicação",
+    "questions": [
+      "Tem dificuldade em se expressar verbalmente de forma clara?",
+      "Apresenta dificuldade em compreender instruções orais?",
+      "Possui vocabulário limitado para a faixa etária?",
+      "Apresenta dificuldades na pronúncia de palavras?",
+      "Tem dificuldade em construir narrativas coerentes?"
+    ]
+  }
+]

@@ -1,0 +1,7 @@
+import { Link } from 'react-router-dom';
+import { ArrowLeft, ArrowUpRight, BookOpen, Brain, Building2, GraduationCap, HeartHandshake, Leaf } from 'lucide-react';
+import { roles } from '../../../src/demo/data.js';
+import { BentoGrid, BentoGridItem } from '../components/ui/bento-grid';
+import { Brand, Button } from '../components/shared';
+const icons=[BookOpen,GraduationCap,HeartHandshake,Brain,Building2];
+export function Profiles(){return <div className="profiles-page"><header><Brand/><a href="/" className="back-link"><ArrowLeft size={16}/>Voltar ao início</a></header><main><span className="profile-eyebrow"><Leaf size={14}/>UMA COMUNIDADE. MUITAS POSSIBILIDADES.</span><h1>Qual é o seu papel<br/>nessa jornada<span>?</span></h1><p>Escolha um perfil e descubra como podemos<br className="desktop-only"/> transformar a aprendizagem juntos.</p><BentoGrid className="profile-grid">{roles.map((r,i)=>{const Icon=icons[i];return <Link to={`/${r.id}/dashboard`} key={r.id} className={`profile-link profile-${i}`}><BentoGridItem className="profile-bento" header={<div className="profile-card-top"><span><Icon size={25}/></span><ArrowUpRight size={20}/></div>} title={<h2>{r.name}</h2>} description={<><p>{r.description}</p><span className="profile-user">Explorar como {r.user.split(' ')[0]}<ArrowUpRight size={14}/></span></>}/></Link>;})}</BentoGrid><div className="demo-caption"><span/>Ambiente demonstrativo com dados fictícios</div></main><footer>Educação que reconhece cada jeito de aprender.<Leaf size={15}/></footer></div>;}
